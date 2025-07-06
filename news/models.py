@@ -21,6 +21,8 @@ class Article(models.Model):
     text = models.TextField(null=False, blank=False, verbose_name=_('text'))
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, null=False, blank=False,
                                verbose_name=_('author'), related_name='articles')
+    origin = models.CharField(max_length=100, null=False, blank=False, verbose_name=_('origin'))
+    reference = models.URLField(null=False, blank=False, verbose_name=_('reference'))
     image = models.ImageField(null=True, blank=True, verbose_name=_('image'), upload_to='articles/')
     created_time = models.DateTimeField(auto_now_add=True, verbose_name=_('created time'))
     updated_time = models.DateTimeField(auto_now=True, verbose_name=_('updated time'))
