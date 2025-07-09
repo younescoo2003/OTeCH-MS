@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+from datetime import timedelta
 
 load_dotenv()
 
@@ -47,6 +48,11 @@ INSTALLED_APPS = [
     # Third-Party apps
     'rest_framework',
     'corsheaders',
+    'rest_framework_simplejwt',
+
+    # Local apps
+    'users',
+    'patients',
 ]
 
 MIDDLEWARE = [
@@ -138,6 +144,19 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Cache settings
+CACHES = {
+    'auth': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'auth_cache',
+        'TIMEOUT': 10*60
+    },
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'default_cache'
+    }
+}
+
 # CORS settings
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -152,3 +171,24 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
     'authorization'
 ]
+
+AUTH_USER_MODEL = 'users.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated'
+    )
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=20),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'USER_ID_FIELD': 'id',
+}
+
+NUMBER_DELAY_SECONDS = 120
