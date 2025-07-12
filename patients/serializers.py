@@ -10,7 +10,7 @@ class PatientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
-        fields = ['user', 'national_id', 'birthdate', 'gender', 'marital_status', 'ms_type']
+        fields = ['user', 'modified_at', 'last_modified_by', 'national_id', 'birthdate', 'gender', 'marital_status', 'age', 'education_level', 'current_occupation', 'years_employed', 'address', 'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relationship', 'ms_type', 'ms_diagnosis_date', 'number_of_relapses', 'relapse_dates_and_areas', 'family_medical_history', 'caregiver_diseases', 'drug_allergies', 'food_allergies', 'physiotherapy_received', 'occupational_therapy_received', 'mobility_aids_used', 'therapist_cooperation_level', 'motor_status', 'muscle_strength', 'balance', 'walking_ability', 'adl_activities', 'iadl_activities', 'cognitive_status', 'speech_status', 'swallowing_status', 'fatigue_level', 'psychological_status', 'living_environment', 'equipment_used_daily', 'equipment_used_work', 'environmental_modifications_needed', 'assistive_devices_needed', 'short_term_goals', 'long_term_goals', 'patient_personal_goals', 'therapist_team_goals', 'goal_timeline', 'recommended_exercises', 'fatigue_management_techniques', 'environmental_adaptation', 'family_education', 'caregiver_education', 'session_scheduling', 'progress_monitoring']
         depth = 0
 
 
@@ -53,8 +53,24 @@ class PatientRegisterSerializer(serializers.ModelSerializer):
             gender=validated_data['gender'],
             marital_status=validated_data['marital_status'],
             ms_type=validated_data['ms_type'],
+            age=validated_data.get['age'],
+            education_level=validated_data['education_level'],
+            address=validated_data['address'],
+            emergency_contact_name=validated_data['emergency_contact_name'],
+            emergency_contact_phone=validated_data['emergency_contact_phone'],
+            emergency_contact_relationship=validated_data['emergency_contact_relationship']
         )
 
         auth_cache.delete(f'verified_{validated_data['phone_number']}')
 
         return patient
+
+class PatientProgressMonitoringSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PatientProgressMonitoring
+        fields = '__all__'
+
+class PatientMedicineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PatientMedicine
+        fields = '__all__'

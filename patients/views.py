@@ -2,7 +2,7 @@ from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Patient
-from .serializers import PatientSerializer, PatientRegisterSerializer
+from .serializers import PatientSerializer, PatientRegisterSerializer, PatientProgressMonitoringSerializer, PatientMedicineSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
 class PatientProfileView(generics.RetrieveAPIView):
@@ -29,3 +29,25 @@ class PatientRegisterView(APIView):
                 'status':status.HTTP_201_CREATED})
 
         return Response({'errors':serializer.errors, 'status':status.HTTP_400_BAD_REQUEST})
+
+
+class PatientProgressMonitoringViewSet(viewsets.ModelViewSet):
+    serializer_class = PatientProgressMonitoringSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return PatientProgressMonitoring.objects.filter(patient__user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(patient=Patient.objects.get(user=self.request.user))
+
+
+class PatientMedicineViewSet(viewsets.ModelViewSet):
+    serializer_class = PatientMedicineSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return PatientMedicine.objects.filter(patient__user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(patient=Patient.objects.get(user=self.request.user))
