@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+import sys
 from datetime import timedelta
 
 load_dotenv()
@@ -29,6 +30,8 @@ SECRET_KEY = 'django-insecure-z0x5sunzp1&#=f7xj3&ul@j_1+29e1kz9y=-2%msa!lam2i8fl
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+TESTING = sys.argv[1:2] == ['test']
 
 ALLOWED_HOSTS = ['*']
 
@@ -90,32 +93,63 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+test_prefix = ''
+if TESTING:
+    test_prefix = 'TEST_'
+
 DATABASES = {
     'default': {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv("DB_NAME"),
-        'USER': os.getenv("DB_USERNAME"),
-        'PASSWORD': os.getenv("DB_PASSWORD"),
-        'HOST': os.getenv("DB_HOST"),
-        'PORT': os.getenv("DB_PORT"),
+        'NAME': os.getenv(test_prefix + "DB_NAME"),
+        'USER': os.getenv(test_prefix + "DB_USERNAME"),
+        'PASSWORD': os.getenv(test_prefix + "DB_PASSWORD"),
+        'HOST': os.getenv(test_prefix + "DB_HOST"),
+        'PORT': os.getenv(test_prefix + "DB_PORT"),
     }
 }
 
+# Cache settings
 CACHES = {
+    'auth': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'auth_cache',
+        'TIMEOUT': 10*60
+    },
     'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'CONNECTION_POOL_KWARGS': {
-                'max_connections': 100,
-                'retry_on_timeout': True,
-            }
-        }
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'default_cache'
     }
 }
+if os.getenv('CACHE') == 'redis':
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': 'redis://127.0.0.1:6379/1',
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'CONNECTION_POOL_KWARGS': {
+                    'max_connections': 100,
+                    'retry_on_timeout': True,
+                }
+            }
+        },
+        'auth': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': 'redis://127.0.0.1:6379/2',
+            'TIMEOUT': 10*60,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'CONNECTION_POOL_KWARGS': {
+                    'max_connections': 100,
+                    'retry_on_timeout': True,
+                }
+            }
+        }
+
+    }
+
 
 
 # Password validation
@@ -162,19 +196,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Cache settings
-CACHES = {
-    'auth': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'auth_cache',
-        'TIMEOUT': 10*60
-    },
-    'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'default_cache'
-    }
-}
-
 # CORS settings
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -218,5 +239,8 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'USER_ID_FIELD': 'id',
 }
+
+if DEBUG:
+    SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'] = timedelta(days=3)
 
 NUMBER_DELAY_SECONDS = 120

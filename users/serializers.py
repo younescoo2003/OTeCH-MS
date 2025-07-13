@@ -7,12 +7,13 @@ import random
 from datetime import timedelta, datetime
 from django.conf import settings
 from django.core.cache import caches
+from utils.validations import phone_regex, validate_uuid
 
 auth_cache = caches['auth']
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
-    temp_token = serializers.CharField(required=True)
+    temp_token = serializers.CharField(required=True, validators=[validate_uuid])
 
     class Meta:
         model = User
@@ -29,11 +30,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         if temp_token != cached_token:
             raise serializers.ValidationError('Invalid Temp Token')
 
-
-        if len(data['password']) < 8:
-            raise serializers.ValidationError("Password is too small")
-        
         return data
+
+    def validate_password(self, value):
+        if len(value) < 8:
+            raise serializers.ValidationError("Password is too small")
+        return value
+        
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -46,13 +49,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 class LoginSerializer(serializers.Serializer):
-    phone_number = serializers.CharField(required=True)
+    phone_number = serializers.CharField(required=True, validators=[phone_regex])
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
 
     def validate(self, data):
-        if not re.match(r"^\+989\d{9}$", data['phone_number']):
-            raise serializers.ValidationError("Invalid phone number")
-        
         user = authenticate(phone_number=data.get('phone_number'), password=data.get('password'))
         if not user:
             raise serializers.ValidationError("Invalid phone number or password.")
@@ -63,12 +63,7 @@ class LoginSerializer(serializers.Serializer):
 
 
 class SendOTPSerializer(serializers.Serializer):
-    phone_number = serializers.CharField(required=True)
-
-    def validate_phone_number(self, value):
-        if not re.match(r"^\+989\d{9}$", value):
-            raise serializers.ValidationError("Invalid phone number")
-        return value
+    phone_number = serializers.CharField(required=True, validators=[phone_regex])
 
     def validate(self, data):
         c = auth_cache.get(f'verify_{data.get('phone_number')}')
@@ -86,9 +81,9 @@ class SendOTPSerializer(serializers.Serializer):
         return {'phone_number': phone_number, 'otp': otp, 'temp_token': temp_token}
 
 class VerifyOTPSerializer(serializers.Serializer):
-    phone_number = serializers.CharField(required=True)
+    phone_number = serializers.CharField(required=True, validators=[phone_regex])
     otp = serializers.IntegerField(required=True)
-    temp_token = serializers.CharField(required=True)
+    temp_token = serializers.CharField(required=True, validators=[validate_uuid])
 
     def validate(self, data):
         phone_number = data.get('phone_number')

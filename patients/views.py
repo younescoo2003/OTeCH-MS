@@ -1,5 +1,6 @@
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
+from rest_framework import viewsets
 from rest_framework.response import Response
 from .models import Patient
 from .serializers import PatientSerializer, PatientRegisterSerializer, PatientProgressMonitoringSerializer, PatientMedicineSerializer
@@ -36,6 +37,7 @@ class PatientProgressMonitoringViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        # Patients can only access their own progress monitoring
         return PatientProgressMonitoring.objects.filter(patient__user=self.request.user)
 
     def perform_create(self, serializer):
@@ -47,6 +49,7 @@ class PatientMedicineViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        # Patients can only access their own medicines
         return PatientMedicine.objects.filter(patient__user=self.request.user)
 
     def perform_create(self, serializer):

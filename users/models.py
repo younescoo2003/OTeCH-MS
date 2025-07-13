@@ -2,12 +2,13 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils import timezone
 from .managers import UserManager
+from utils.validations import phone_regex, name_regex
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, null=True)
-    phone_number = models.CharField(max_length=15, unique=True)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
+    phone_number = models.CharField(max_length=15, unique=True, validators=[phone_regex])
+    first_name = models.CharField(max_length=30, validators=[name_regex])
+    last_name = models.CharField(max_length=30, validators=[name_regex])
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     registered_at = models.DateTimeField(default=timezone.now)

@@ -1,5 +1,7 @@
 from django.db import models
 from users.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
+from utils.validations import national_id_regex, name_regex, address_regex, phone_regex
 
 class Patient(models.Model):
     GENDER_CHOICES = (
@@ -21,28 +23,28 @@ class Patient(models.Model):
         ('CIS', 'Clinically Isolated Syndrome'),
     )
 
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='patient_profile')
+    user = models.OneToOneField(User, on_delete=models.PROTECT, related_name='patient_profile')
     modified_at = models.DateTimeField(auto_now=True)
     last_modified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     # Personal Information
-    national_id = models.CharField(max_length=50, unique=True)
+    national_id = models.CharField(max_length=50, unique=True, validators=[national_id_regex])
     birthdate = models.DateField()
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     marital_status = models.CharField(max_length=10, choices=MARITAL_STATUS_CHOICES)
-    age = models.IntegerField()
-    education_level = models.CharField(max_length=100)
-    current_occupation = models.CharField(max_length=100, blank=True)
-    years_employed = models.IntegerField(blank=True)
-    address = models.TextField()
-    emergency_contact_name = models.CharField(max_length=100)
-    emergency_contact_phone = models.CharField(max_length=20)
-    emergency_contact_relationship = models.CharField(max_length=50)
+    education_level = models.CharField(max_length=100, validators=[name_regex])
+    address = models.TextField(validators=[address_regex])
+    emergency_contact_name = models.CharField(max_length=100, validators=[name_regex])
+    emergency_contact_phone = models.CharField(max_length=20, validators=[phone_regex])
+    emergency_contact_relationship = models.CharField(max_length=50, validators=[name_regex])
+
+    years_employed = models.IntegerField(null=True, validators=[MinValueValidator(0), MaxValueValidator(100)])
+    current_occupation = models.CharField(max_length=100, blank=True, validators=[name_regex])
 
     # Medical History
     ms_type = models.CharField(max_length=30, choices=MS_TYPE_CHOICES)
-    ms_diagnosis_date = models.DateField(blank=True)
-    number_of_relapses = models.IntegerField(blank=True)
+    ms_diagnosis_date = models.DateField(null=True)
+    number_of_relapses = models.IntegerField(null=True, validators=[MinValueValidator(0), MaxValueValidator(1000)])
     relapse_dates_and_areas = models.TextField(blank=True)
     family_medical_history = models.TextField(blank=True)
     caregiver_diseases = models.TextField(blank=True)
@@ -112,16 +114,16 @@ class PatientMedicine(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
-    name = models.CharField(max_length=200)
-    generic_name = models.CharField(max_length=200)
-    brand = models.CharField(max_length=100)
-    medicine_type = models.CharField(max_length=100)
-    medicine_category = models.CharField(max_length=100)
+    name = models.CharField(max_length=200, validators=[name_regex])
+    generic_name = models.CharField(max_length=200, validators=[name_regex])
+    brand = models.CharField(max_length=100, validators=[name_regex])
+    medicine_type = models.CharField(max_length=100, validators=[name_regex])
+    medicine_category = models.CharField(max_length=100, validators=[name_regex])
 
     # Dosage and Administration
-    dosage_amount = models.PositiveIntegerField()
+    dosage_amount = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(1000)])
     dosage_unit = models.CharField(max_length=50)
-    frequency_per_day = models.PositiveIntegerField()
+    frequency_per_day = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(24)])
     frequency_description = models.TextField(blank=True)
     administration_route = models.CharField(max_length=100)
     administration_time = models.CharField(max_length=100)
@@ -131,17 +133,17 @@ class PatientMedicine(models.Model):
     end_date = models.DateField()
 
     # Presciber Information
-    prescriber_name = models.CharField(max_length=200)
+    prescriber_name = models.CharField(max_length=200, validators=[name_regex])
     prescriber_specialty = models.CharField(max_length=100)
     prescription_date = models.DateField()
-    prescription_number = models.CharField(max_length=100)
+    prescription_number = models.CharField(max_length=100, validators=[phone_regex])
 
     # Medicine Purpose
     prescribed_for = models.CharField(max_length=200)
     purpose_description = models.TextField(blank=True)
 
     # Effectiveness and Response
-    effectiveness_rating = models.PositiveSmallIntegerField(min=1, max=10)
+    effectiveness_rating = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
     patient_response = models.CharField(max_length=200)
     response_notes = models.TextField(blank=True)
 
