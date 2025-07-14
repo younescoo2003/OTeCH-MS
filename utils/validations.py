@@ -34,12 +34,12 @@ national_id_regex = RegexValidator(
 )
 
 phone_regex = RegexValidator(
-    regex=r'^(\+98|0)?9\d{9}$',
+    regex=r'^(\+98)?9\d{9}$',
     message='Phone number must be a valid Iranian mobile number'
 )
 
 name_regex = RegexValidator(
-    regex=r'^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FFa-zA-Z\s]+$',
+    regex=r'^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FFa-zA-Z\s]{2,100}$',
     message='Name can only contain letters and spaces'
 )
 

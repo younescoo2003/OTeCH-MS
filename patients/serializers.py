@@ -104,7 +104,6 @@ class PatientRegisterSerializer(serializers.ModelSerializer):
         reg = RegisterSerializer(data=data)
         if reg.is_valid():
             cached_token = auth_cache.get(f'verified_{data['phone_number']}')   
-
             if cached_token is None:
                 raise serializers.ValidationError('Number is Not Verified')
             
@@ -149,6 +148,12 @@ class PatientProgressMonitoringSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PatientMedicineSerializer(serializers.ModelSerializer):
+    dosage = serializers.SerializerMethodField()
+    
     class Meta:
         model = PatientMedicine
         fields = '__all__'
+        read_only_fields = ('patient',)
+
+    def get_dosage(self, obj):
+        return f'{obj.dosage_amount}{obj.dosage_unit}'

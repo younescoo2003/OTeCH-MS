@@ -2,13 +2,16 @@ from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.response import Response
-from .models import Patient
-from .serializers import PatientSerializer, PatientRegisterSerializer, PatientProgressMonitoringSerializer, PatientMedicineSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.pagination import PageNumberPagination
+from utils.renderers import StatusInJSONRenderer
+from .models import Patient, PatientMedicine, PatientProgressMonitoring
+from .serializers import PatientSerializer, PatientRegisterSerializer, PatientProgressMonitoringSerializer, PatientMedicineSerializer
 
 class PatientProfileView(generics.RetrieveAPIView):
     serializer_class = PatientSerializer
     permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [StatusInJSONRenderer]
 
     def get_object(self):
         # Return the Patient object related to the authenticated user
@@ -17,6 +20,7 @@ class PatientProfileView(generics.RetrieveAPIView):
 
 class PatientRegisterView(APIView):
     permission_classes = [permissions.AllowAny]
+    renderer_classes = [StatusInJSONRenderer]
 
     def post(self, request):
         serializer = PatientRegisterSerializer(data=request.data)
@@ -26,15 +30,18 @@ class PatientRegisterView(APIView):
 
             return Response({
                 'refresh': str(refresh),
-                'access': str(refresh.access_token),
-                'status':status.HTTP_201_CREATED})
+                'access': str(refresh.access_token)
+                },
+                status=status.HTTP_201_CREATED
+            )
 
-        return Response({'errors':serializer.errors, 'status':status.HTTP_400_BAD_REQUEST})
+        return Response({'errors': serializer.errors},status=status.HTTP_400_BAD_REQUEST)
 
 
 class PatientProgressMonitoringViewSet(viewsets.ModelViewSet):
     serializer_class = PatientProgressMonitoringSerializer
     permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [StatusInJSONRenderer]
 
     def get_queryset(self):
         # Patients can only access their own progress monitoring
@@ -44,9 +51,12 @@ class PatientProgressMonitoringViewSet(viewsets.ModelViewSet):
         serializer.save(patient=Patient.objects.get(user=self.request.user))
 
 
+
 class PatientMedicineViewSet(viewsets.ModelViewSet):
     serializer_class = PatientMedicineSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = PageNumberPagination
+    renderer_classes = [StatusInJSONRenderer]    
 
     def get_queryset(self):
         # Patients can only access their own medicines

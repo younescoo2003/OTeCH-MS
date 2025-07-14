@@ -6,6 +6,8 @@ urlpatterns = [
     path('profile/', PatientProfileView.as_view(), name='patient-profile'),
     path('register/', PatientRegisterView.as_view(), name='patient-register'),
     # Patient-facing endpoints
-    path('my-progress-monitoring/', PatientProgressMonitoringViewSet.as_view({'get':'list', 'post':'create', 'put': 'update', 'patch':'partial_update'}), name='patient-progress-monitoring'),
-    path('my-medicines/', PatientMedicineViewSet.as_view({'get':'list', 'post':'create', 'put':'update', 'patch': 'partial_update'}), name='patient-medicines'),
+    path('my-progress-monitoring/', PatientProgressMonitoringViewSet.as_view({'get':'list', 'post':'create'}), name='patient-progress-monitoring'),
+    path('my-progress-monitoring/<int:pk>/', PatientProgressMonitoringViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete':'destroy'})),
+    path('my-medicines/', PatientMedicineViewSet.as_view({'get':'list', 'post':'create'}), name='patient-medicines'),
+    path('my-medicines/<int:pk>/', PatientMedicineViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch':'partial_update', 'delete': 'destroy'}), name='patient-medicines-detail'),
 ]

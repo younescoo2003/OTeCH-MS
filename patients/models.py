@@ -121,7 +121,7 @@ class PatientMedicine(models.Model):
     medicine_category = models.CharField(max_length=100, validators=[name_regex])
 
     # Dosage and Administration
-    dosage_amount = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(1000)])
+    dosage_amount = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(1000)])
     dosage_unit = models.CharField(max_length=50)
     frequency_per_day = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(24)])
     frequency_description = models.TextField(blank=True)
