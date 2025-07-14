@@ -5,15 +5,15 @@ from utils.validations import national_id_regex, name_regex, address_regex, phon
 
 class Patient(models.Model):
     GENDER_CHOICES = (
-        ('male', 'Male'),
-        ('female', 'Female'),
+        ('M', 'Male'),
+        ('F', 'Female'),
     )
 
     MARITAL_STATUS_CHOICES = (
-        ('single', 'Single'),
-        ('married', 'Married'),
-        ('divorced', 'Divorced'),
-        ('widowed', 'Widowed'),
+        ('S', 'Single'),
+        ('M', 'Married'),
+        ('D', 'Divorced'),
+        ('W', 'Widowed'),
     )
 
     MS_TYPE_CHOICES = (
@@ -30,8 +30,8 @@ class Patient(models.Model):
     # Personal Information
     national_id = models.CharField(max_length=50, unique=True, validators=[national_id_regex])
     birthdate = models.DateField()
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
-    marital_status = models.CharField(max_length=10, choices=MARITAL_STATUS_CHOICES)
+    gender = models.CharField(max_length=20, choices=GENDER_CHOICES)
+    marital_status = models.CharField(max_length=20, choices=MARITAL_STATUS_CHOICES)
     education_level = models.CharField(max_length=100, validators=[name_regex])
     address = models.TextField(validators=[address_regex])
     emergency_contact_name = models.CharField(max_length=100, validators=[name_regex])

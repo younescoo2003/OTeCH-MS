@@ -7,12 +7,21 @@ from django.contrib.auth import login
 from .serializers import RegisterSerializer, LoginSerializer, SendOTPSerializer, VerifyOTPSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from utils.renderers import StatusInJSONRenderer
+from drf_yasg.utils import swagger_auto_schema
 
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
     renderer_classes = [StatusInJSONRenderer]
 
+    @swagger_auto_schema(
+        operation_description="Authenticate user and obtain JWT tokens",
+        request_body=LoginSerializer,
+        responses={
+            200: 'Returns user details and tokens',
+            400: 'Validation errors'
+        }
+    )
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
@@ -36,6 +45,14 @@ class SendOTPView(APIView):
     permission_classes = [AllowAny]
     renderer_classes = [StatusInJSONRenderer]
 
+    @swagger_auto_schema(
+        operation_description="Send OTP to user's phone number for verification",
+        request_body=SendOTPSerializer,
+        responses={
+            200: 'Returns success message and temporary token',
+            400: 'Validation errors'
+        }
+    )
     def post(self, request):
         serializer = SendOTPSerializer(data=request.data)
         if serializer.is_valid():
@@ -48,6 +65,14 @@ class VerifyOTPView(APIView):
     permission_classes = [AllowAny]
     renderer_classes = [StatusInJSONRenderer]
 
+    @swagger_auto_schema(
+        operation_description="Verify OTP code and temporary token",
+        request_body=VerifyOTPSerializer,
+        responses={
+            200: 'Returns success message',
+            400: 'Validation errors'
+        }
+    )
     def post(self, request):
         serializer = VerifyOTPSerializer(data=request.data)
         if serializer.is_valid():
