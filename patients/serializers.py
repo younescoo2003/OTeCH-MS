@@ -28,7 +28,7 @@ class PatientRegisterSerializer(serializers.ModelSerializer):
     def validate(self, data):
         reg = RegisterSerializer(data=data)
         if reg.is_valid():
-            cached_token = auth_cache.get(f'verified_{data['phone_number']}')   
+            cached_token = auth_cache.get(f"verified_{data['phone_number']}")
 
             if cached_token is None:
                 raise serializers.ValidationError('Number is Not Verified')
@@ -55,6 +55,6 @@ class PatientRegisterSerializer(serializers.ModelSerializer):
             ms_type=validated_data['ms_type'],
         )
 
-        auth_cache.delete(f'verified_{validated_data['phone_number']}')
+        auth_cache.delete(f'verified_{validated_data["phone_number"]}')
 
         return patient
