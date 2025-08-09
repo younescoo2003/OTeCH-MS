@@ -1,24 +1,25 @@
-from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from django.utils import timezone
+from django.db import models
+
+from utils.validations import validate_iranian_phone_number, validate_name
 from .managers import UserManager
-from utils.validations import phone_regex, name_regex
+
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, null=True)
-    phone_number = models.CharField(max_length=15, unique=True, validators=[phone_regex])
-    first_name = models.CharField(max_length=30, validators=[name_regex])
-    last_name = models.CharField(max_length=30, validators=[name_regex])
+    first_name = models.CharField(max_length=100, validators=[validate_name])
+    last_name = models.CharField(max_length=100, validators=[validate_name])
+    
+    ROLE_CHOICES = (
+        ('patient', 'Patient'),
+        ('caregiver', 'Caregiver'),
+        ('admin', 'Admin'),
+    )
+    role = models.CharField(max_length=10,choices=ROLE_CHOICES)
+    phone_number = models.CharField(max_length=13,unique=True,validators=[validate_iranian_phone_number])
+    is_registration_complete = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    registered_at = models.DateTimeField(default=timezone.now)
-    ROLE_CHOICES = (
-        ('not_registered', 'Not Registered'),
-        ('admin', 'Admin'),
-        ('patient', 'Patient'),
-        ('therapist', 'Therapist'),
-    )
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='not_registered')
 
     objects = UserManager()
 

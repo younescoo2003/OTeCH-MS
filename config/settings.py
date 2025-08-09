@@ -232,6 +232,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated'
     ),
     'EXCEPTION_HANDLER': 'utils.exceptions.status_in_json_handler',
+    'DEFAULT_RENDERER_CLASSES': [
+        'utils.renderers.CustomRenderer',
+    ],
 }
 
 SIMPLE_JWT = {
@@ -245,29 +248,5 @@ SIMPLE_JWT = {
 if DEBUG:
     SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'] = timedelta(days=3)
 
-NUMBER_DELAY_SECONDS = 120
-
-
-SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'Bearer': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header'
-        }
-    },
-    'USE_SESSION_AUTH': False,
-    'JSON_EDITOR': True,
-    'SUPPORTED_SUBMIT_METHIDS':[
-        'get',
-        'post',
-        'delete',
-        'put',
-        'patch',
-    ],
-    'OPERATIONS_SORTER': 'alpha',
-    'TAG_SORTER': 'alpha',
-    'DEEP_LINKING': True,
-    'SHOW_EXTENSIONS': True,
-    'SHOW_COMMON_EXTENSIONS': True,
-}
+NUMBER_DELAY_SECONDS = 120 # number of seconds before sending otp again
+VERIFY_OTP_MAX_TRIES = 5
