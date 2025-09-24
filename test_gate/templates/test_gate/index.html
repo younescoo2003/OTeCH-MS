@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Recorder</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'test_gate/css/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Video Recorder</h1>
+        <video id="videoElement" autoplay muted></video>
+        <div class="controls">
+            <button id="startButton">Start Recording</button>
+            <button id="stopButton" disabled>Stop Recording</button>
+            <button id="uploadButton" disabled>Upload Video</button>
+        </div>
+        <p id="statusMessage"></p>
+    </div>
+    <script src="{% static 'test_gate/js/script.js' %}"></script>
+</body>
+</html>
