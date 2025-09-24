@@ -71,7 +71,7 @@ class SendOTPSerializer(serializers.Serializer):
         return value
 
     def validate(self, data):
-        c = auth_cache.get(f'verify_{data.get('phone_number')}')
+        c = auth_cache.get(f'verify_{data.get("phone_number")}')
         if c!= None:
             if c['send_time'] + timedelta(seconds=settings.NUMBER_DELAY_SECONDS) > datetime.now():
                 raise serializers.ValidationError(f"wait for {(c['send_time']+timedelta(seconds=settings.NUMBER_DELAY_SECONDS)-datetime.now()).seconds} seconds")

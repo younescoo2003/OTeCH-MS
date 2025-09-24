@@ -1,0 +1,30 @@
+{% extends 'marketplace/base.html' %}
+{% block content %}
+<h1>🛒 Your Cart</h1>
+
+{% if items %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ item.product.price }}</td>
+                <td>${{ item.total_price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h4>Total: ${{ total }}</h4>
+{% else %}
+    <p>Your cart is empty.</p>
+{% endif %}
+{% endblock %}
