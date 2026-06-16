@@ -62,3 +62,12 @@ This Django web application provides a complete platform for clinicians, researc
 ```bash
 git clone https://github.com/younescoo2003/OTeCH-MS.git
 cd OTeCH-MS
+
+2. **Creat the Environment**
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+3.**install all packages**
+```bash
+pip install -r requirements.txt
